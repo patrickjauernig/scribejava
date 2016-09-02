@@ -23,14 +23,14 @@ public abstract class AbstractRequest {
     private final Verb verb;
     private final ParameterList querystringParams = new ParameterList();
     private final ParameterList bodyParams = new ParameterList();
-    private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<String, String>();
     private boolean followRedirects = true;
     private final OAuthService service;
 
     private String payload;
     private String charset;
     private byte[] bytePayload;
-    private final Map<String, String> oauthParameters = new HashMap<>();
+    private final Map<String, String> oauthParameters = new HashMap<String, String>();
 
     private String realm;
 

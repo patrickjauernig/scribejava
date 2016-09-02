@@ -201,15 +201,13 @@ public class OAuth20Service extends OAuthService {
         for (String param : redirectLocation.substring(redirectLocation.indexOf('?') + 1).split("&")) {
             final String[] keyValue = param.split("=");
             if (keyValue.length == 2) {
-                switch (keyValue[0]) {
-                    case "code":
-                        authorization.setCode(keyValue[1]);
-                        break;
-                    case "state":
-                        authorization.setState(keyValue[1]);
-                        break;
-                    default: //just ignore any other param;
-                }
+            	if (keyValue[0].equals("code")) {
+            		authorization.setCode(keyValue[1]);
+            	} else if (keyValue[0].equals("state")) {
+            		authorization.setState(keyValue[1]);	
+            	}
+            	
+            	//just ignore any other param;
             }
         }
         return authorization;

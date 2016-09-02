@@ -85,8 +85,10 @@ public class OAuthConfig {
             message += '\n';
             try {
                 debugStream.write(message.getBytes("UTF8"));
-            } catch (IOException | RuntimeException e) {
-                throw new RuntimeException("there were problems while writting to the debug stream", e);
+            } catch (IOException e) {
+            	throw new RuntimeException("there were problems while writting to the debug stream", e);
+            } catch (RuntimeException e) {
+            	throw new RuntimeException("there were problems while writting to the debug stream", e);
             }
         }
     }
