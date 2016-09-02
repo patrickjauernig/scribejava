@@ -3,6 +3,7 @@ package com.github.scribejava.core.oauth;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Future;
+
 import com.github.scribejava.core.builder.api.DefaultApi10a;
 import com.github.scribejava.core.model.AbstractRequest;
 import com.github.scribejava.core.model.OAuth1AccessToken;
@@ -13,6 +14,7 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.OAuthRequestAsync;
 import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.SignatureType;
 import com.github.scribejava.core.services.Base64Encoder;
 import com.github.scribejava.core.utils.MapUtils;
 
@@ -176,22 +178,21 @@ public class OAuth10aService extends OAuthService {
 
     private void appendSignature(AbstractRequest request) {
         final OAuthConfig config = getConfig();
-        switch (config.getSignatureType()) {
-            case Header:
-                config.log("using Http Header signature");
+        if (config.getSignatureType().equals(SignatureType.Header)) {
+        	 config.log("using Http Header signature");
 
-                final String oauthHeader = api.getHeaderExtractor().extract(request);
-                request.addHeader(OAuthConstants.HEADER, oauthHeader);
-                break;
-            case QueryString:
-                config.log("using Querystring signature");
+             final String oauthHeader = api.getHeaderExtractor().extract(request);
+             request.addHeader(OAuthConstants.HEADER, oauthHeader);
+        } else {
+        	if (config.getSignatureType().equals(SignatureType.QueryString)) {
+        		config.log("using Querystring signature");
 
                 for (Map.Entry<String, String> entry : request.getOauthParameters().entrySet()) {
                     request.addQuerystringParameter(entry.getKey(), entry.getValue());
                 }
-                break;
-            default:
-                throw new IllegalStateException("Unknown new Signature Type '" + config.getSignatureType() + "'.");
+        	} else {
+        		throw new IllegalStateException("Unknown new Signature Type '" + config.getSignatureType() + "'.");
+        	}
         }
     }
 

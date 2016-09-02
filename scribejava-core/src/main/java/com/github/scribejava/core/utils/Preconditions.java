@@ -35,7 +35,7 @@ public abstract class Preconditions {
      * @throws IllegalArgumentException if the string is null or empty
      */
     public static void checkEmptyString(String string, String errorMsg) {
-        check(string != null && !string.trim().isEmpty(), errorMsg);
+        check(string != null && string.trim().length() != 0, errorMsg);
     }
 
     /**
