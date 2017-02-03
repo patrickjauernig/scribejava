@@ -1,3 +1,37 @@
+[SNAPSHOT]
+ * add body for PATCH HTTP method
+
+[4.0.0]
+ * Remove OAuthRequestAsync, just OAuthRequest. Request should know about sync vs async. Move default Http engine to JDKHttpClient.
+ * introduce SignatureType for OAuth2.0 to implement Bearer signing for the requests
+ * switch Google, GitHub, Facebook OAuth2.0 oauth requests signing to more secured recommended variant (GET-param -> header Bearer)
+ * introduce custom nonstandard Facebook AccessTokenErrorResponse
+
+[3.4.1]
+ * Drop deprecated methods
+ * Move doktornarabote.ru urls to https (thanks to https://github.com/ezibrov)
+
+[3.4.0]
+ * uncouple OAuthRequest and Service. OAuthRequest shouldn't know anything about OAuthservice.
+   You don't need OAuthService to create OAuthRequest anymore. Async request should be sent via OAuthService method.
+ * add support for byte[] and File (async only) payload in OAuth Requests (thanks to https://github.com/keijohyttinen)
+ * add support for  HTTP verbs (thanks to https://github.com/keijohyttinen)
+ * add OkHttp http client support (thanks to https://github.com/arcao)
+ * add default HTTP client configs (to use like 'new ServiceBuilder().httpClientConfig(OkHttpHttpClientConfig.defaultConfig())')
+ * you can use your own impl of AsyncHttpClient
+
+[3.3.0]
+ * update Facebook v2.6 -> v2.8
+ * add The Things Network API (v1-staging and v2-preview) (thanks to https://github.com/jpmeijers)
+ * add Box (thanks to https://github.com/MclaughlinSteve)
+ * fix: OAuth20Service::refreshAccessToken should use RefreshTokenEndpoint, not AccessTokenEndpoint (thanks to https://github.com/vivin)
+ * move signRequest method to OAuthService (common for OAuth1 and OAuth2) (thanks to https://github.com/apomelov)
+ * drop deprecated setConnectionKeepAlive method
+
+[3.2.0]
+ * Add Naver API (thanks to chooco)
+ * handle OAuth2 error response for Issuing an Access Token (thanks to juherr)
+
 [3.1.0]
  * fix OdnoklassnikiServiceImpl signature, params for hash must be sorted in lexicographic order, see http://new.apiok.ru/dev/methods/
  * add posibility to use externally created http client
