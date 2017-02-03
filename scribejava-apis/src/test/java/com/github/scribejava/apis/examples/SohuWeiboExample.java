@@ -10,6 +10,7 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth10aService;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public final class SohuWeiboExample {
 
@@ -19,7 +20,7 @@ public final class SohuWeiboExample {
     private SohuWeiboExample() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         // Replace these with your own api key and secret
         final String apiKey = "your_key";
         final String apiSecret = "your_secret";
@@ -59,9 +60,9 @@ public final class SohuWeiboExample {
 
         // Now let's go and ask for a protected resource!
         System.out.println("Now we're going to access a protected resource...");
-        final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service);
+        final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL);
         service.signRequest(accessToken, request);
-        final Response response = request.send();
+        final Response response = service.execute(request);
         System.out.println("Got it! Lets see what we found...");
         System.out.println();
         System.out.println(response.getCode());

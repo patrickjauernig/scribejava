@@ -9,6 +9,7 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public final class OdnoklassnikiExample {
 
@@ -19,7 +20,7 @@ public final class OdnoklassnikiExample {
     private OdnoklassnikiExample() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         // Replace these with your client id and secret
         final String clientId  = "your api client id";
         final String publicKey = "your api public key";
@@ -65,10 +66,9 @@ public final class OdnoklassnikiExample {
 
         // Now let's go and ask for a protected resource!
         System.out.println("Now we're going to access a protected resource...");
-        final OAuthRequest request = new OAuthRequest(Verb.GET, String.format(PROTECTED_RESOURCE_URL, publicKey),
-                service);
+        final OAuthRequest request = new OAuthRequest(Verb.GET, String.format(PROTECTED_RESOURCE_URL, publicKey));
         service.signRequest(accessToken, request);
-        final Response response = request.send();
+        final Response response = service.execute(request);
         System.out.println("Got it! Lets see what we found...");
         System.out.println();
         System.out.println(response.getCode());

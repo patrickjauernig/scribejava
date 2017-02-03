@@ -10,16 +10,17 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public final class FacebookExample {
 
     private static final String NETWORK_NAME = "Facebook";
-    private static final String PROTECTED_RESOURCE_URL = "https://graph.facebook.com/v2.6/me";
+    private static final String PROTECTED_RESOURCE_URL = "https://graph.facebook.com/v2.8/me";
 
     private FacebookExample() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         // Replace these with your client id and secret
         final String clientId = "your client id";
         final String clientSecret = "your client secret";
@@ -69,9 +70,9 @@ public final class FacebookExample {
 
         // Now let's go and ask for a protected resource!
         System.out.println("Now we're going to access a protected resource...");
-        final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL, service);
+        final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL);
         service.signRequest(accessToken, request);
-        final Response response = request.send();
+        final Response response = service.execute(request);
         System.out.println("Got it! Lets see what we found...");
         System.out.println();
         System.out.println(response.getCode());

@@ -1,7 +1,7 @@
 package com.github.scribejava.httpclient.ahc;
 
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthRequestAsync;
+import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import io.netty.handler.codec.http.HttpHeaders;
 import java.io.IOException;
@@ -12,10 +12,10 @@ import org.asynchttpclient.AsyncCompletionHandler;
 public class OAuthAsyncCompletionHandler<T> extends AsyncCompletionHandler<T> {
 
     private final OAuthAsyncRequestCallback<T> callback;
-    private final OAuthRequestAsync.ResponseConverter<T> converter;
+    private final OAuthRequest.ResponseConverter<T> converter;
 
     public OAuthAsyncCompletionHandler(OAuthAsyncRequestCallback<T> callback,
-            OAuthRequestAsync.ResponseConverter<T> converter) {
+            OAuthRequest.ResponseConverter<T> converter) {
         this.callback = callback;
         this.converter = converter;
     }
@@ -28,7 +28,7 @@ public class OAuthAsyncCompletionHandler<T> extends AsyncCompletionHandler<T> {
             headersMap.put(header.getKey(), header.getValue());
         }
         final Response response = new Response(ahcResponse.getStatusCode(), ahcResponse.getStatusText(), headersMap,
-                ahcResponse.getResponseBody(), ahcResponse.getResponseBodyAsStream());
+                ahcResponse.getResponseBodyAsStream());
 
         @SuppressWarnings("unchecked")
         final T t = converter == null ? (T) response : converter.convert(response);

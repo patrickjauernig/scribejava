@@ -3,11 +3,9 @@ package com.github.scribejava.apis.examples;
 import java.util.Scanner;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.apis.VkontakteApi;
-import com.github.scribejava.core.model.ForceTypeOfHttpRequest;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthRequestAsync;
+import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.ScribeJavaConfig;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.httpclient.ahc.AhcHttpClient;
@@ -28,9 +26,8 @@ public final class VkontakteExternalHttpExample {
         // Replace these with your client id and secret
         final String clientId = "your client id";
         final String clientSecret = "your client secret";
-        ScribeJavaConfig.setForceTypeOfHttpRequests(ForceTypeOfHttpRequest.FORCE_ASYNC_ONLY_HTTP_REQUESTS);
 
-        //create any http cleint externally
+        //create any http client externally
         final DefaultAsyncHttpClientConfig httpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setMaxConnections(5)
                 .setRequestTimeout(10_000)
@@ -67,7 +64,7 @@ public final class VkontakteExternalHttpExample {
 
             // Trade the Request Token and Verfier for the Access Token
             System.out.println("Trading the Request Token for an Access Token...");
-            final OAuth2AccessToken accessToken = service.getAccessTokenAsync(code, null).get();
+            final OAuth2AccessToken accessToken = service.getAccessToken(code);
             System.out.println("Got the Access Token!");
             System.out.println("(if your curious it looks like this: " + accessToken
                     + ", 'rawResponse'='" + accessToken.getRawResponse() + "')");
@@ -75,9 +72,9 @@ public final class VkontakteExternalHttpExample {
 
             // Now let's go and ask for a protected resource!
             System.out.println("Now we're going to access a protected resource...");
-            final OAuthRequestAsync request = new OAuthRequestAsync(Verb.GET, PROTECTED_RESOURCE_URL, service);
+            final OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL);
             service.signRequest(accessToken, request);
-            final Response response = request.sendAsync(null).get();
+            final Response response = service.execute(request);
             System.out.println("Got it! Lets see what we found...");
             System.out.println();
             System.out.println(response.getCode());

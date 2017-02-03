@@ -1,9 +1,6 @@
 package com.github.scribejava.apis;
 
-import com.github.scribejava.apis.service.DoktornaraboteOAuthServiceImpl;
 import com.github.scribejava.core.builder.api.DefaultApi20;
-import com.github.scribejava.core.model.OAuthConfig;
-import com.github.scribejava.core.oauth.OAuth20Service;
 
 public class DoktornaraboteApi extends DefaultApi20 {
 
@@ -20,16 +17,11 @@ public class DoktornaraboteApi extends DefaultApi20 {
 
     @Override
     public String getAccessTokenEndpoint() {
-        return "http://auth.doktornarabote.ru/OAuth/Token";
+        return "https://auth.doktornarabote.ru/OAuth/Token";
     }
 
     @Override
     protected String getAuthorizationBaseUrl() {
-        return "http://auth.doktornarabote.ru/OAuth/Authorize";
-    }
-
-    @Override
-    public OAuth20Service createService(OAuthConfig config) {
-        return new DoktornaraboteOAuthServiceImpl(this, config);
+        return "https://auth.doktornarabote.ru/OAuth/Authorize";
     }
 }

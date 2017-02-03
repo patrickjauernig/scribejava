@@ -1,7 +1,8 @@
 package com.github.scribejava.core.builder;
 
 import com.github.scribejava.core.builder.api.BaseApi;
-import com.github.scribejava.core.model.HttpClient;
+import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.model.OAuthConfig;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.SignatureType;
@@ -25,12 +26,7 @@ public class ServiceBuilder {
     private String responseType = "code";
     private String userAgent;
 
-    //sync version only
-    private Integer connectTimeout;
-    private Integer readTimeout;
-
-    //not-default httpclient only
-    private HttpClient.Config httpClientConfig;
+    private HttpClientConfig httpClientConfig;
     private HttpClient httpClient;
 
     public ServiceBuilder() {
@@ -122,19 +118,7 @@ public class ServiceBuilder {
         return this;
     }
 
-    public ServiceBuilder connectTimeout(Integer connectTimeout) {
-        Preconditions.checkNotNull(connectTimeout, "Connection timeout can't be null");
-        this.connectTimeout = connectTimeout;
-        return this;
-    }
-
-    public ServiceBuilder readTimeout(Integer readTimeout) {
-        Preconditions.checkNotNull(readTimeout, "Read timeout can't be null");
-        this.readTimeout = readTimeout;
-        return this;
-    }
-
-    public ServiceBuilder httpClientConfig(HttpClient.Config httpClientConfig) {
+    public ServiceBuilder httpClientConfig(HttpClientConfig httpClientConfig) {
         Preconditions.checkNotNull(httpClientConfig, "httpClientConfig can't be null");
         this.httpClientConfig = httpClientConfig;
         return this;
@@ -168,7 +152,7 @@ public class ServiceBuilder {
     private OAuthConfig createConfig() {
         checkPreconditions();
         return new OAuthConfig(apiKey, apiSecret, callback, signatureType, scope, debugStream, state, responseType,
-                userAgent, connectTimeout, readTimeout, httpClientConfig, httpClient);
+                userAgent, httpClientConfig, httpClient);
     }
 
     /**
@@ -178,7 +162,7 @@ public class ServiceBuilder {
      * @param api will build Service for this API
      * @return fully configured {@link S}
      */
-    public <S extends OAuthService> S build(BaseApi<S> api) {
+    public <S extends OAuthService<?>> S build(BaseApi<S> api) {
         return api.createService(createConfig());
     }
 }

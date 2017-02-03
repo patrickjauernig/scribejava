@@ -27,13 +27,19 @@ Hit ScribeJava as hard and with many threads as you like.
 
 ### Async and other HTTP clients
 
-You can use ning async http client 1.9.x or asynchttpclient 2.x out-of-box, just add maven modules scribejava-httpclient-ning or scribejava-httpclient-ahc to your pom
+ScribeJava support out-of-box several HTTP clients:
+ * ning async http client 1.9.x (maven module scribejava-httpclient-ning)
+ * asynchttpclient 2.x (maven module scribejava-httpclient-ahc)
+ * OkHttp (maven module scribejava-httpclient-okhttp)
+ 
+ just add corresponding maven modules to your pom
 
 ### Supports all major 1.0a and 2.0 OAuth APIs out-of-the-box
 
 * AWeber (http://www.aweber.com/)
+* Box (https://www.box.com/)
 * Digg (http://digg.com/)
-* Доктор на работе (http://www.doktornarabote.ru/)
+* Доктор на работе (https://www.doktornarabote.ru/)
 * Facebook (https://www.facebook.com/)
 * Flickr (https://www.flickr.com/)
 * Foursquare (https://foursquare.com/)
@@ -48,6 +54,7 @@ You can use ning async http client 1.9.x or asynchttpclient 2.x out-of-box, just
 * Microsoft Live (https://login.live.com/)
 * Mail.Ru (https://mail.ru/)
 * Meetup (http://www.meetup.com/)
+* NAVER (http://www.naver.com/)
 * NetEase (http://www.163.com/)
 * Odnoklassniki Одноклассники (http://ok.ru/)
 * Pinterest (https://www.pinterest.com/)
@@ -58,6 +65,7 @@ You can use ning async http client 1.9.x or asynchttpclient 2.x out-of-box, just
 * Skyrock (http://skyrock.com/)
 * sohu 搜狐 (http://www.sohu.com/)
 * StackExchange (http://stackexchange.com/)
+* The Things Network (v1-staging and v2-preview) (https://www.thethingsnetwork.org/)
 * Trello (https://trello.com/)
 * Tumblr (https://www.tumblr.com/)
 * TUT.BY (http://www.tut.by/)
@@ -92,7 +100,7 @@ You can pull ScribeJava from the central maven repository, just add these to you
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-apis</artifactId>
-    <version>3.1.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -101,7 +109,7 @@ And in case you need just core classes (that's it, without any external API (FB,
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>3.1.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 

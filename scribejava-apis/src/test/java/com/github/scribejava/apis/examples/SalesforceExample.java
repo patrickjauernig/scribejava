@@ -14,6 +14,7 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ExecutionException;
 
 public final class SalesforceExample {
 
@@ -22,7 +23,8 @@ public final class SalesforceExample {
     private SalesforceExample() {
     }
 
-    public static void main(String... args) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+    public static void main(String... args) throws IOException, NoSuchAlgorithmException, KeyManagementException,
+            InterruptedException, ExecutionException {
         // Replace these with your client id and secret
         final String clientId = "your client id";
         final String clientSecret = "your client secret";
@@ -84,9 +86,8 @@ public final class SalesforceExample {
         System.out.println();
         System.out.println("Full URL: " + url);
 
-        final OAuthRequest request = new OAuthRequest(Verb.GET, url, service);
-        request.addHeader("Authorization", "Bearer " + accessToken.getAccessToken());
-        final Response response = request.send();
+        final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+        final Response response = service.execute(request);
         System.out.println();
         System.out.println(response.getCode());
         System.out.println(response.getBody());

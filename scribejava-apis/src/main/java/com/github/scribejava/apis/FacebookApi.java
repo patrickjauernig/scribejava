@@ -1,10 +1,13 @@
 package com.github.scribejava.apis;
 
+import com.github.scribejava.apis.facebook.FacebookAccessTokenJsonExtractor;
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.extractors.TokenExtractor;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Verb;
 
 /**
- * Facebook v2.6 API
+ * Facebook v2.8 API
  */
 public class FacebookApi extends DefaultApi20 {
 
@@ -27,7 +30,7 @@ public class FacebookApi extends DefaultApi20 {
 
     @Override
     public String getAccessTokenEndpoint() {
-        return "https://graph.facebook.com/v2.6/oauth/access_token";
+        return "https://graph.facebook.com/v2.8/oauth/access_token";
     }
 
     @Override
@@ -37,6 +40,11 @@ public class FacebookApi extends DefaultApi20 {
 
     @Override
     protected String getAuthorizationBaseUrl() {
-        return "https://www.facebook.com/v2.6/dialog/oauth";
+        return "https://www.facebook.com/v2.8/dialog/oauth";
+    }
+
+    @Override
+    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+        return FacebookAccessTokenJsonExtractor.instance();
     }
 }

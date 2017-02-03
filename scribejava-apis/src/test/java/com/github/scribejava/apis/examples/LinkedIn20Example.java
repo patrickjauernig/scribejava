@@ -9,6 +9,7 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public final class LinkedIn20Example {
 
@@ -18,7 +19,7 @@ public final class LinkedIn20Example {
     private LinkedIn20Example() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         // Replace these with your client id and secret
         final String clientId = "your client id";
         final String clientSecret = "your client secret";
@@ -64,12 +65,11 @@ public final class LinkedIn20Example {
                 break;
             }
 
-            final OAuthRequest request = new OAuthRequest(Verb.GET, String.format(PROTECTED_RESOURCE_URL, query),
-                    service);
+            final OAuthRequest request = new OAuthRequest(Verb.GET, String.format(PROTECTED_RESOURCE_URL, query));
             request.addHeader("x-li-format", "json");
             request.addHeader("Accept-Language", "ru-RU");
             service.signRequest(accessToken, request);
-            final Response response = request.send();
+            final Response response = service.execute(request);
             System.out.println();
             System.out.println(response.getCode());
             System.out.println(response.getBody());

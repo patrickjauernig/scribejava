@@ -2,60 +2,47 @@ package com.github.scribejava.core.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Map;
-import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.utils.StreamUtils;
 
 public class Response {
 
-    private int code;
-    private String message;
+    private final int code;
+    private final String message;
+    private final Map<String, String> headers;
     private String body;
     private InputStream stream;
-    private Map<String, String> headers;
 
-    public Response(int code, String message, Map<String, String> headers, String body, InputStream stream) {
+    private Response(int code, String message, Map<String, String> headers) {
         this.code = code;
-        this.headers = headers;
-        this.body = body;
         this.message = message;
+        this.headers = headers;
+    }
+
+    public Response(int code, String message, Map<String, String> headers, InputStream stream) {
+        this(code, message, headers);
         this.stream = stream;
     }
 
-    Response(HttpURLConnection connection) throws IOException {
-        try {
-            connection.connect();
-            code = connection.getResponseCode();
-            message = connection.getResponseMessage();
-            headers = parseHeaders(connection);
-            stream = isSuccessful() ? connection.getInputStream() : connection.getErrorStream();
-        } catch (UnknownHostException e) {
-            throw new OAuthException("The IP address of a host could not be determined.", e);
-        }
+    public Response(int code, String message, Map<String, String> headers, String body) {
+        this(code, message, headers);
+        this.body = body;
     }
 
     private String parseBodyContents() throws IOException {
+        if (stream == null) {
+            return null;
+        }
         if ("gzip".equals(getHeader("Content-Encoding"))) {
-            body = StreamUtils.getGzipStreamContents(getStream());
+            body = StreamUtils.getGzipStreamContents(stream);
         } else {
-            body = StreamUtils.getStreamContents(getStream());
+            body = StreamUtils.getStreamContents(stream);
         }
         return body;
     }
 
-    private Map<String, String> parseHeaders(HttpURLConnection conn) {
-        final Map<String, String> headers = new HashMap<String, String>();
-        for (String key : conn.getHeaderFields().keySet()) {
-            headers.put(key, conn.getHeaderFields().get(key).get(0));
-        }
-        return headers;
-    }
-
     public final boolean isSuccessful() {
-        return getCode() >= 200 && getCode() < 400;
+        return code >= 200 && code < 400;
     }
 
     public String getBody() throws IOException {

@@ -5,18 +5,17 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 import com.github.scribejava.core.builder.api.DefaultApi20;
-import com.github.scribejava.core.model.AbstractRequest;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2Authorization;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthConfig;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.OAuthRequestAsync;
 import com.github.scribejava.core.model.Response;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-public class OAuth20Service extends OAuthService {
+public class OAuth20Service extends OAuthService<OAuth2AccessToken> {
 
     private static final String VERSION = "2.0";
     private final DefaultApi20 api;
@@ -32,26 +31,54 @@ public class OAuth20Service extends OAuthService {
         this.api = api;
     }
 
-    //sync version, protected to facilitate mocking
-    protected OAuth2AccessToken sendAccessTokenRequestSync(OAuthRequest request) throws IOException {
-        return api.getAccessTokenExtractor().extract(request.send().getBody());
+    //protected to facilitate mocking
+    protected OAuth2AccessToken sendAccessTokenRequestSync(OAuthRequest request)
+            throws IOException, InterruptedException, ExecutionException {
+        return api.getAccessTokenExtractor().extract(execute(request));
     }
 
-    //async version, protected to facilitate mocking
-    protected Future<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequestAsync request,
+    //protected to facilitate mocking
+    protected Future<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request) {
+        return sendAccessTokenRequestAsync(request, null);
+    }
+
+    //protected to facilitate mocking
+    protected Future<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
 
-        return request.sendAsync(callback, new OAuthRequestAsync.ResponseConverter<OAuth2AccessToken>() {
+        return execute(request, callback, new OAuthRequest.ResponseConverter<OAuth2AccessToken>() {
             @Override
             public OAuth2AccessToken convert(Response response) throws IOException {
-                return getApi().getAccessTokenExtractor().extract(response.getBody());
+                return getApi().getAccessTokenExtractor().extract(response);
             }
         });
     }
 
-    public final OAuth2AccessToken getAccessToken(String code) throws IOException {
-        final OAuthRequest request = createAccessTokenRequest(code,
-                new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint(), this));
+    public final Future<OAuth2AccessToken> getAccessTokenAsync(String code) {
+        return getAccessToken(code, null);
+    }
+
+    /**
+     * Start the request to retrieve the access token. The optionally provided callback will be called with the Token
+     * when it is available.
+     *
+     * @param code code
+     * @param callback optional callback
+     * @return Future
+     * @deprecated user {@link #getAccessToken(java.lang.String,
+     * com.github.scribejava.core.model.OAuthAsyncRequestCallback) }
+     */
+    @Deprecated
+    public final Future<OAuth2AccessToken> getAccessTokenAsync(String code,
+            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+        final OAuthRequest request = createAccessTokenRequest(code);
+
+        return sendAccessTokenRequestAsync(request, callback);
+    }
+
+    public final OAuth2AccessToken getAccessToken(String code)
+            throws IOException, InterruptedException, ExecutionException {
+        final OAuthRequest request = createAccessTokenRequest(code);
 
         return sendAccessTokenRequestSync(request);
     }
@@ -64,15 +91,15 @@ public class OAuth20Service extends OAuthService {
      * @param callback optional callback
      * @return Future
      */
-    public final Future<OAuth2AccessToken> getAccessTokenAsync(String code,
+    public final Future<OAuth2AccessToken> getAccessToken(String code,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
-        final OAuthRequestAsync request = createAccessTokenRequest(code,
-                new OAuthRequestAsync(api.getAccessTokenVerb(), api.getAccessTokenEndpoint(), this));
+        final OAuthRequest request = createAccessTokenRequest(code);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    protected <T extends AbstractRequest> T createAccessTokenRequest(String code, T request) {
+    protected OAuthRequest createAccessTokenRequest(String code) {
+        final OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint());
         final OAuthConfig config = getConfig();
         request.addParameter(OAuthConstants.CLIENT_ID, config.getApiKey());
         request.addParameter(OAuthConstants.CLIENT_SECRET, config.getApiSecret());
@@ -86,25 +113,45 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public final OAuth2AccessToken refreshAccessToken(String refreshToken) throws IOException {
-        final OAuthRequest request = createRefreshTokenRequest(refreshToken,
-                new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint(), this));
-
-        return sendAccessTokenRequestSync(request);
+    public final Future<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken) {
+        return refreshAccessToken(refreshToken, null);
     }
 
+    /**
+     *
+     * @param refreshToken refreshToken
+     * @param callback callback
+     * @return future
+     * @deprecated use {@link #refreshAccessToken(java.lang.String,
+     * com.github.scribejava.core.model.OAuthAsyncRequestCallback)}
+     */
+    @Deprecated
     public final Future<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
-        final OAuthRequestAsync request = createRefreshTokenRequest(refreshToken,
-                new OAuthRequestAsync(api.getAccessTokenVerb(), api.getRefreshTokenEndpoint(), this));
+        final OAuthRequest request = createRefreshTokenRequest(refreshToken);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    protected <T extends AbstractRequest> T createRefreshTokenRequest(String refreshToken, T request) {
+    public final OAuth2AccessToken refreshAccessToken(String refreshToken)
+            throws IOException, InterruptedException, ExecutionException {
+        final OAuthRequest request = createRefreshTokenRequest(refreshToken);
+
+        return sendAccessTokenRequestSync(request);
+    }
+
+    public final Future<OAuth2AccessToken> refreshAccessToken(String refreshToken,
+            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+        final OAuthRequest request = createRefreshTokenRequest(refreshToken);
+
+        return sendAccessTokenRequestAsync(request, callback);
+    }
+
+    protected OAuthRequest createRefreshTokenRequest(String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new IllegalArgumentException("The refreshToken cannot be null or empty");
         }
+        final OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), api.getRefreshTokenEndpoint());
         final OAuthConfig config = getConfig();
         request.addParameter(OAuthConstants.CLIENT_ID, config.getApiKey());
         request.addParameter(OAuthConstants.CLIENT_SECRET, config.getApiSecret());
@@ -113,11 +160,15 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public final OAuth2AccessToken getAccessTokenPasswordGrant(String uname, String password) throws IOException {
-        final OAuthRequest request = createAccessTokenPasswordGrantRequest(uname, password,
-                new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint(), this));
+    public final OAuth2AccessToken getAccessTokenPasswordGrant(String uname, String password)
+            throws IOException, InterruptedException, ExecutionException {
+        final OAuthRequest request = createAccessTokenPasswordGrantRequest(uname, password);
 
         return sendAccessTokenRequestSync(request);
+    }
+
+    public final Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String uname, String password) {
+        return getAccessTokenPasswordGrantAsync(uname, password, null);
     }
 
     /**
@@ -130,14 +181,13 @@ public class OAuth20Service extends OAuthService {
      */
     public final Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String uname, String password,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
-        final OAuthRequestAsync request = createAccessTokenPasswordGrantRequest(uname, password,
-                new OAuthRequestAsync(api.getAccessTokenVerb(), api.getAccessTokenEndpoint(), this));
+        final OAuthRequest request = createAccessTokenPasswordGrantRequest(uname, password);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    protected <T extends AbstractRequest> T createAccessTokenPasswordGrantRequest(String username, String password,
-            T request) {
+    protected OAuthRequest createAccessTokenPasswordGrantRequest(String username, String password) {
+        final OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint());
         final OAuthConfig config = getConfig();
         request.addParameter(OAuthConstants.USERNAME, username);
         request.addParameter(OAuthConstants.PASSWORD, password);
@@ -169,8 +219,9 @@ public class OAuth20Service extends OAuthService {
         return VERSION;
     }
 
-    public void signRequest(OAuth2AccessToken accessToken, AbstractRequest request) {
-        request.addQuerystringParameter(OAuthConstants.ACCESS_TOKEN, accessToken.getAccessToken());
+    @Override
+    public void signRequest(OAuth2AccessToken accessToken, OAuthRequest request) {
+        api.getSignatureType().signRequest(accessToken, request);
     }
 
     /**
@@ -198,7 +249,11 @@ public class OAuth20Service extends OAuthService {
 
     public OAuth2Authorization extractAuthorization(String redirectLocation) {
         final OAuth2Authorization authorization = new OAuth2Authorization();
-        for (String param : redirectLocation.substring(redirectLocation.indexOf('?') + 1).split("&")) {
+        int end = redirectLocation.indexOf('#');
+        if (end == -1) {
+            end = redirectLocation.length();
+        }
+        for (String param : redirectLocation.substring(redirectLocation.indexOf('?') + 1, end).split("&")) {
             final String[] keyValue = param.split("=");
             if (keyValue.length == 2) {
             	if (keyValue[0].equals("code")) {

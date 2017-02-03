@@ -12,6 +12,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public final class Google20Example {
 
@@ -21,7 +22,7 @@ public final class Google20Example {
     private Google20Example() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         // Replace these with your client id and secret
         final String clientId = "your client id";
         final String clientSecret = "your client secret";
@@ -98,9 +99,9 @@ public final class Google20Example {
                 requestUrl = PROTECTED_RESOURCE_URL + "?fields=" + query;
             }
 
-            final OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl, service);
+            final OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl);
             service.signRequest(accessToken, request);
-            final Response response = request.send();
+            final Response response = service.execute(request);
             System.out.println();
             System.out.println(response.getCode());
             System.out.println(response.getBody());

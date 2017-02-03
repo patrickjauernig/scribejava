@@ -10,6 +10,7 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth10aService;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public final class AWeberExample {
 
@@ -22,7 +23,7 @@ public final class AWeberExample {
     private AWeberExample() {
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) throws IOException, InterruptedException, ExecutionException {
         final OAuth10aService service = new ServiceBuilder()
                 .apiKey(CONSUMER_KEY)
                 .apiSecret(CONSUMER_SECRET)
@@ -56,9 +57,9 @@ public final class AWeberExample {
 
         // Now let's go and ask for a protected resource!
         System.out.println("Now we're going to access a protected resource...");
-        final OAuthRequest request = new OAuthRequest(Verb.GET, ACCOUNT_RESOURCE_URL, service);
+        final OAuthRequest request = new OAuthRequest(Verb.GET, ACCOUNT_RESOURCE_URL);
         service.signRequest(accessToken, request);
-        final Response response = request.send();
+        final Response response = service.execute(request);
         System.out.println("Got it! Lets see what we found...");
         System.out.println();
         System.out.println(response.getBody());
